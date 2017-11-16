@@ -25,20 +25,20 @@
   "dependencies": {
     "cancelable-pump": "^0.2.0",
     "graceful-fs": "^4.1.11",
-    "inspect-with-kind": "^1.0.1",
+    "inspect-with-kind": "^1.0.3",
     "is-plain-obj": "^1.1.0",
     "is-stream": "^1.1.0",
-    "tar-fs": "^1.15.3",
-    "tar-stream": "^1.5.4",
-    "zen-observable": "^0.5.1"
+    "tar-fs": "^1.16.0",
+    "tar-stream": "^1.5.5",
+    "zen-observable": "^0.6.0"
   },
   "devDependencies": {
-    "@shinnn/eslint-config-node": "^4.0.0",
-    "eslint": "^4.0.0",
-    "nyc": "^11.0.2",
+    "@shinnn/eslint-config-node": "^4.0.2",
+    "eslint": "^4.11.0",
+    "nyc": "^11.3.0",
     "read-utf8-file": "^1.0.1",
     "rmfr": "^1.0.3",
-    "tape": "^4.6.3"
+    "tape": "^4.8.0"
   },
   "eslintConfig": {
     "extends": "@shinnn/node"
