@@ -1,7 +1,3 @@
-/*!
- * tar-to-file | MIT (c) Shinnosuke Watanabe
- * https://github.com/shinnn/tar-to-file
-*/
 'use strict';
 
 const inspect = require('util').inspect;
@@ -37,6 +33,7 @@ class SingleFileExtract extends Extract {
       option.tarPath
     } to contain only a single file`;
   }
+
   emit(eventName, header, stream, next) {
     if (eventName !== 'entry') {
       super.emit(eventName, header);
