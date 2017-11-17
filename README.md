@@ -1,6 +1,6 @@
 # tar-to-file
 
-[![NPM version](https://img.shields.io/npm/v/tar-to-file.svg)](https://www.npmjs.com/package/tar-to-file)
+[![npm version](https://img.shields.io/npm/v/tar-to-file.svg)](https://www.npmjs.com/package/tar-to-file)
 [![Build Status](https://travis-ci.org/shinnn/tar-to-file.svg?branch=master)](https://travis-ci.org/shinnn/tar-to-file)
 [![Build status](https://ci.appveyor.com/api/projects/status/k7u29ig6o2q21hri/branch/master?svg=true)](https://ci.appveyor.com/project/ShinnosukeWatanabe/tar-to-file/branch/master)
 [![Coverage Status](https://img.shields.io/coveralls/shinnn/tar-to-file.svg)](https://coveralls.io/github/shinnn/tar-to-file?branch=master)
@@ -26,7 +26,7 @@ subscription.unsubscribe();
 
 ## Installation
 
-[Use npm.](https://docs.npmjs.com/cli/install)
+[Use](https://docs.npmjs.com/cli/install) [npm](https://docs.npmjs.com/getting-started/what-is-npm).
 
 ```
 npm install tar-to-file
@@ -131,6 +131,4 @@ const observable = fileToTar('Untitled.tar.gz', 'Untitled.txt', {
 
 ## License
 
-Copyright (c) 2017 [Shinnosuke Watanabe](https://github.com/shinnn)
-
-Licensed under [the MIT License](./LICENSE).
+[ISC License](./LICENSE) © 2017 Shinnosuke Watanabe
