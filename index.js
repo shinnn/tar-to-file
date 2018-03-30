@@ -20,65 +20,65 @@ const isStream = require('is-stream');
 const Observable = require('zen-observable');
 
 class DestroyableTransform extends Transform {
-  destroy() {
-    super.unpipe();
-  }
+	destroy() {
+		super.unpipe();
+	}
 }
 
 class SingleFileExtract extends Extract {
-  constructor(option) {
-    super();
+	constructor(option) {
+		super();
 
-    this.errorMessage = `Expected the archive ${
-      option.tarPath
-    } to contain only a single file`;
-  }
+		this.errorMessage = `Expected the archive ${
+			option.tarPath
+		} to contain only a single file`;
+	}
 
-  emit(eventName, header, stream, next) {
-    if (eventName !== 'entry') {
-      super.emit(eventName, header);
-      return;
-    }
+	emit(eventName, header, stream, next) {
+		if (eventName !== 'entry') {
+			super.emit(eventName, header);
+			return;
+		}
 
-    super.emit('entry', header, stream, err => {
-      if (err) {
-        next(err);
-        return;
-      }
+		super.emit('entry', header, stream, err => {
+			if (err) {
+				next(err);
+				return;
+			}
 
-      if (this.firstEntryName) {
-        next(new Error(`${
-          this.errorMessage
-        }, but actually contains multiple entries ${inspect(this.firstEntryName)} and ${inspect(header.name)}.`));
+			if (this.firstEntryName) {
+				next(new Error(`${
+					this.errorMessage
+				}, but actually contains multiple entries ${inspect(this.firstEntryName)} and ${inspect(header.name)}.`));
 
-        return;
-      }
+				return;
+			}
 
-      this.firstEntryName = header.name;
+			this.firstEntryName = header.name;
 
-      if (header.type !== 'file') {
-        next(new Error(`${
-          this.errorMessage
-        }, but actually contains a non-file entry ${inspect(header.name)} (${header.type}).`));
+			if (header.type !== 'file') {
+				next(new Error(`${
+					this.errorMessage
+				}, but actually contains a non-file entry ${inspect(header.name)} (${header.type}).`));
 
-        return;
-      }
+				return;
+			}
 
-      next();
-    });
-  }
+			next();
+		});
+	}
 }
 
 const functionOptions = new Set(['map', 'mapStream']);
 const unsupportedOptions = new Set([
-  'entries',
-  'filter',
-  'ignore',
-  'strip'
+	'entries',
+	'filter',
+	'ignore',
+	'strip'
 ]);
 
 function echo(val) {
-  return val;
+	return val;
 }
 
 const DEST_ERROR = 'Expected a destination file path';
@@ -87,144 +87,144 @@ const TAR_TRANSFORM_ERROR = '`tarTransform` option must be a transform stream ' 
 const MAP_STREAM_ERROR = 'The function passed to `mapStream` option must return a stream';
 
 module.exports = function tarToFile(tarPath, filePath, options) {
-  return new Observable(observer => {
-    if (typeof tarPath !== 'string') {
-      throw new TypeError(`Expected a path of a tar archive (string), but got ${inspectWithKind(tarPath)}.`);
-    }
+	return new Observable(observer => {
+		if (typeof tarPath !== 'string') {
+			throw new TypeError(`Expected a path of a tar archive (string), but got ${inspectWithKind(tarPath)}.`);
+		}
 
-    if (tarPath.length === 0) {
-      throw new Error('Expected a path of a tar archive, but got \'\' (empty string).');
-    }
+		if (tarPath.length === 0) {
+			throw new Error('Expected a path of a tar archive, but got \'\' (empty string).');
+		}
 
-    if (typeof filePath !== 'string') {
-      throw new TypeError(`${DEST_ERROR} (string), but got ${inspectWithKind(filePath)}.`);
-    }
+		if (typeof filePath !== 'string') {
+			throw new TypeError(`${DEST_ERROR} (string), but got ${inspectWithKind(filePath)}.`);
+		}
 
-    if (filePath.length === 0) {
-      throw new Error(`${DEST_ERROR}, but got '' (empty string).`);
-    }
+		if (filePath.length === 0) {
+			throw new Error(`${DEST_ERROR}, but got '' (empty string).`);
+		}
 
-    if (options !== undefined) {
-      if (!isPlainObj(options)) {
-        throw new TypeError(`Expected an object to specify \`tar-to-file\` options, but got ${inspectWithKind(options)}.`);
-      }
-    } else {
-      options = {};
-    }
+		if (options !== undefined) {
+			if (!isPlainObj(options)) {
+				throw new TypeError(`Expected an object to specify \`tar-to-file\` options, but got ${inspectWithKind(options)}.`);
+			}
+		} else {
+			options = {};
+		}
 
-    for (const optionName of functionOptions) {
-      const val = options[optionName];
+		for (const optionName of functionOptions) {
+			const val = options[optionName];
 
-      if (val !== undefined && typeof val !== 'function') {
-        throw new TypeError(`\`${optionName}\` option must be a function, but ${
-          inspectWithKind(val)
-        } was provided to it.`);
-      }
-    }
+			if (val !== undefined && typeof val !== 'function') {
+				throw new TypeError(`\`${optionName}\` option must be a function, but ${
+					inspectWithKind(val)
+				} was provided to it.`);
+			}
+		}
 
-    for (const optionName of unsupportedOptions) {
-      const val = options[optionName];
+		for (const optionName of unsupportedOptions) {
+			const val = options[optionName];
 
-      if (val !== undefined) {
-        throw new TypeError(`\`tar-to-file\` doesn't support \`${optionName}\` option , but ${
-          inspectWithKind(val)
-        } was provided to it.`);
-      }
-    }
+			if (val !== undefined) {
+				throw new TypeError(`\`tar-to-file\` doesn't support \`${optionName}\` option , but ${
+					inspectWithKind(val)
+				} was provided to it.`);
+			}
+		}
 
-    if (options.tarTransform !== undefined) {
-      if (!isStream(options.tarTransform)) {
-        throw new TypeError(`${TAR_TRANSFORM_ERROR}, but got a non-stream value ${
-          inspectWithKind(options.tarTransform)
-        }.`);
-      }
+		if (options.tarTransform !== undefined) {
+			if (!isStream(options.tarTransform)) {
+				throw new TypeError(`${TAR_TRANSFORM_ERROR}, but got a non-stream value ${
+					inspectWithKind(options.tarTransform)
+				}.`);
+			}
 
-      if (!isStream.transform(options.tarTransform)) {
-        throw new TypeError(`${TAR_TRANSFORM_ERROR}, but got a ${
-          ['duplex', 'writable', 'readable'].find(type => isStream[type](options.tarTransform))
-        } stream instead.`);
-      }
-    }
+			if (!isStream.transform(options.tarTransform)) {
+				throw new TypeError(`${TAR_TRANSFORM_ERROR}, but got a ${
+					['duplex', 'writable', 'readable'].find(type => isStream[type](options.tarTransform))
+				} stream instead.`);
+			}
+		}
 
-    const extract = new SingleFileExtract({tarPath});
-    const mapStream = options.mapStream || echo;
-    let ended = false;
+		const extract = new SingleFileExtract({tarPath});
+		const mapStream = options.mapStream || echo;
+		let ended = false;
 
-    const fsExtractStream = fsExtract(dirname(filePath), Object.assign({
-      extract,
-      fs: gracefulFs
-    }, options, {
-      map(header) {
-        if (header.type !== 'file') {
-          return header;
-        }
+		const fsExtractStream = fsExtract(dirname(filePath), Object.assign({
+			extract,
+			fs: gracefulFs
+		}, options, {
+			map(header) {
+				if (header.type !== 'file') {
+					return header;
+				}
 
-        header = Object.assign({}, header, {name: basename(filePath)});
+				header = Object.assign({}, header, {name: basename(filePath)});
 
-        if (options.map) {
-          return options.map(header);
-        }
+				if (options.map) {
+					return options.map(header);
+				}
 
-        return header;
-      },
-      mapStream(fileStream, header) {
-        const newStream = mapStream(fileStream, header);
+				return header;
+			},
+			mapStream(fileStream, header) {
+				const newStream = mapStream(fileStream, header);
 
-        if (!isStream.readable(newStream)) {
-          fsExtractStream.emit(
-            'error',
-            new TypeError(`${MAP_STREAM_ERROR}${
-              isStream(newStream) ?
-                ' that is readable, but returned a non-readable stream' :
-                `, but returned a non-stream value ${inspect(newStream)}`
-            }.`)
-          );
+				if (!isStream.readable(newStream)) {
+					fsExtractStream.emit(
+						'error',
+						new TypeError(`${MAP_STREAM_ERROR}${
+							isStream(newStream) ?
+								' that is readable, but returned a non-readable stream' :
+								`, but returned a non-stream value ${inspect(newStream)}`
+						}.`)
+					);
 
-          return new PassThrough();
-        }
+					return new PassThrough();
+				}
 
-        let bytes = 0;
+				let bytes = 0;
 
-        if (header.size !== 0) {
-          observer.next({header, bytes});
-        }
+				if (header.size !== 0) {
+					observer.next({header, bytes});
+				}
 
-        return newStream.pipe(new DestroyableTransform({
-          transform(chunk, encoding, cb) {
-            bytes += chunk.length;
-            observer.next({header, bytes});
-            cb(null, chunk);
-          }
-        }));
-      }
-    }));
+				return newStream.pipe(new DestroyableTransform({
+					transform(chunk, encoding, cb) {
+						bytes += chunk.length;
+						observer.next({header, bytes});
+						cb(null, chunk);
+					}
+				}));
+			}
+		}));
 
-    const pipe = [
-      gracefulFs.createReadStream(tarPath),
-      fsExtractStream
-    ];
+		const pipe = [
+			gracefulFs.createReadStream(tarPath),
+			fsExtractStream
+		];
 
-    if (options.tarTransform) {
-      pipe.splice(1, 0, options.tarTransform);
-    }
+		if (options.tarTransform) {
+			pipe.splice(1, 0, options.tarTransform);
+		}
 
-    const cancel = cancelablePump(pipe, err => {
-      ended = true;
+		const cancel = cancelablePump(pipe, err => {
+			ended = true;
 
-      if (err) {
-        observer.error(err);
-        return;
-      }
+			if (err) {
+				observer.error(err);
+				return;
+			}
 
-      observer.complete();
-    });
+			observer.complete();
+		});
 
-    return function cancelExtract() {
-      if (ended) {
-        return;
-      }
+		return function cancelExtract() {
+			if (ended) {
+				return;
+			}
 
-      cancel();
-    };
-  });
+			cancel();
+		};
+	});
 };

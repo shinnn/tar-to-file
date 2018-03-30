@@ -131,4 +131,4 @@ const observable = fileToTar('Untitled.tar.gz', 'Untitled.txt', {
 
 ## License
 
-[ISC License](./LICENSE) © 2017 Shinnosuke Watanabe
+[ISC License](./LICENSE) © 2017 - 2018 Shinnosuke Watanabe
