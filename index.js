@@ -1,14 +1,8 @@
 'use strict';
 
-const inspect = require('util').inspect;
-const pathLib = require('path');
-const streamLib = require('stream');
-
-const basename = pathLib.basename;
-const dirname = pathLib.dirname;
-
-const Transform = streamLib.Transform;
-const PassThrough = streamLib.PassThrough;
+const {inspect} = require('util');
+const {basename, dirname} = require('path');
+const {PassThrough, Transform} = require('stream');
 
 const cancelablePump = require('cancelable-pump');
 const Extract = require('tar-stream').extract;
@@ -86,8 +80,18 @@ const TAR_TRANSFORM_ERROR = '`tarTransform` option must be a transform stream ' 
                             'that modifies the tar archive before extraction';
 const MAP_STREAM_ERROR = 'The function passed to `mapStream` option must return a stream';
 
-module.exports = function tarToFile(tarPath, filePath, options) {
+module.exports = function tarToFile(...args) {
 	return new Observable(observer => {
+		const argLen = args.length;
+
+		if (argLen !== 2 && argLen !== 3) {
+			throw new RangeError(`Expected 2 or 3 arguments (<string>, <string>[, <Object>]), but got ${
+				argLen === 0 ? 'no' : argLen
+			} arguments instead.`);
+		}
+
+		const [tarPath, filePath] = args;
+
 		if (typeof tarPath !== 'string') {
 			throw new TypeError(`Expected a path of a tar archive (string), but got ${inspectWithKind(tarPath)}.`);
 		}
@@ -104,45 +108,45 @@ module.exports = function tarToFile(tarPath, filePath, options) {
 			throw new Error(`${DEST_ERROR}, but got '' (empty string).`);
 		}
 
-		if (options !== undefined) {
+		const options = argLen === 3 ? args[2] : {};
+
+		if (argLen === 3) {
 			if (!isPlainObj(options)) {
 				throw new TypeError(`Expected an object to specify \`tar-to-file\` options, but got ${inspectWithKind(options)}.`);
 			}
-		} else {
-			options = {};
-		}
 
-		for (const optionName of functionOptions) {
-			const val = options[optionName];
+			for (const optionName of functionOptions) {
+				const val = options[optionName];
 
-			if (val !== undefined && typeof val !== 'function') {
-				throw new TypeError(`\`${optionName}\` option must be a function, but ${
-					inspectWithKind(val)
-				} was provided to it.`);
-			}
-		}
-
-		for (const optionName of unsupportedOptions) {
-			const val = options[optionName];
-
-			if (val !== undefined) {
-				throw new TypeError(`\`tar-to-file\` doesn't support \`${optionName}\` option , but ${
-					inspectWithKind(val)
-				} was provided to it.`);
-			}
-		}
-
-		if (options.tarTransform !== undefined) {
-			if (!isStream(options.tarTransform)) {
-				throw new TypeError(`${TAR_TRANSFORM_ERROR}, but got a non-stream value ${
-					inspectWithKind(options.tarTransform)
-				}.`);
+				if (val !== undefined && typeof val !== 'function') {
+					throw new TypeError(`\`${optionName}\` option must be a function, but ${
+						inspectWithKind(val)
+					} was provided to it.`);
+				}
 			}
 
-			if (!isStream.transform(options.tarTransform)) {
-				throw new TypeError(`${TAR_TRANSFORM_ERROR}, but got a ${
-					['duplex', 'writable', 'readable'].find(type => isStream[type](options.tarTransform))
-				} stream instead.`);
+			for (const optionName of unsupportedOptions) {
+				const val = options[optionName];
+
+				if (val !== undefined) {
+					throw new TypeError(`\`tar-to-file\` doesn't support \`${optionName}\` option , but ${
+						inspectWithKind(val)
+					} was provided to it.`);
+				}
+			}
+
+			if (options.tarTransform !== undefined) {
+				if (!isStream(options.tarTransform)) {
+					throw new TypeError(`${TAR_TRANSFORM_ERROR}, but got a non-stream value ${
+						inspectWithKind(options.tarTransform)
+					}.`);
+				}
+
+				if (!isStream.transform(options.tarTransform)) {
+					throw new TypeError(`${TAR_TRANSFORM_ERROR}, but got a ${
+						['duplex', 'writable', 'readable'].find(type => isStream[type](options.tarTransform))
+					} stream instead.`);
+				}
 			}
 		}
 

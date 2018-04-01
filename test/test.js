@@ -9,7 +9,7 @@ const tarToFile = require('..');
 const test = require('tape');
 
 test('tarToFile()', async t => {
-	t.plan(22);
+	t.plan(24);
 
 	const tmp = join(__dirname, 'tmp');
 
@@ -144,7 +144,29 @@ test('tarToFile()', async t => {
 		complete: fail
 	});
 
-	tarToFile(1).subscribe({
+	tarToFile().subscribe({
+		error(err) {
+			t.equal(
+				err.toString(),
+				'RangeError: Expected 2 or 3 arguments (<string>, <string>[, <Object>]), but got no arguments instead.',
+				'should fail when it takes no arguments.'
+			);
+		},
+		complete: fail
+	});
+
+	tarToFile('a', 'b', 'c', 'd').subscribe({
+		error(err) {
+			t.equal(
+				err.toString(),
+				'RangeError: Expected 2 or 3 arguments (<string>, <string>[, <Object>]), but got 4 arguments instead.',
+				'should fail when it takes too many arguments.'
+			);
+		},
+		complete: fail
+	});
+
+	tarToFile(1, 'a').subscribe({
 		error(err) {
 			t.equal(
 				err.toString(),
@@ -155,7 +177,7 @@ test('tarToFile()', async t => {
 		complete: fail
 	});
 
-	tarToFile('').subscribe({
+	tarToFile('', 'a').subscribe({
 		error(err) {
 			t.equal(
 				err.toString(),
