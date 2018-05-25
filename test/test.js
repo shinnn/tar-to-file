@@ -232,11 +232,11 @@ test('tarToFile()', async t => {
 		complete: fail
 	});
 
-	tarToFile('a', 'b', {map: new WeakSet()}).subscribe({
+	tarToFile('a', 'b', {map: new Uint32Array()}).subscribe({
 		error(err) {
 			t.equal(
 				err.toString(),
-				'TypeError: `map` option must be a function, but WeakSet {} was provided to it.',
+				'TypeError: `map` option must be a function, but Uint32Array [  ] was provided to it.',
 				'should fail when it takes an invalid-type option.'
 			);
 		},

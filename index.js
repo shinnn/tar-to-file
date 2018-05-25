@@ -13,12 +13,6 @@ const isPlainObj = require('is-plain-obj');
 const isStream = require('is-stream');
 const Observable = require('zen-observable');
 
-class DestroyableTransform extends Transform {
-	destroy() {
-		super.unpipe();
-	}
-}
-
 class SingleFileExtract extends Extract {
 	constructor(option) {
 		super();
@@ -154,16 +148,16 @@ module.exports = function tarToFile(...args) {
 		const mapStream = options.mapStream || echo;
 		let ended = false;
 
-		const fsExtractStream = fsExtract(dirname(filePath), Object.assign({
+		const fsExtractStream = fsExtract(dirname(filePath), {
 			extract,
-			fs: gracefulFs
-		}, options, {
+			fs: gracefulFs,
+			...options,
 			map(header) {
 				if (header.type !== 'file') {
 					return header;
 				}
 
-				header = Object.assign({}, header, {name: basename(filePath)});
+				header = {...header, name: basename(filePath)};
 
 				if (options.map) {
 					return options.map(header);
@@ -193,7 +187,7 @@ module.exports = function tarToFile(...args) {
 					observer.next({header, bytes});
 				}
 
-				return newStream.pipe(new DestroyableTransform({
+				return newStream.pipe(new Transform({
 					transform(chunk, encoding, cb) {
 						bytes += chunk.length;
 						observer.next({header, bytes});
@@ -201,7 +195,7 @@ module.exports = function tarToFile(...args) {
 					}
 				}));
 			}
-		}));
+		});
 
 		const pipe = [
 			gracefulFs.createReadStream(tarPath),
